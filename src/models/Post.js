@@ -15,6 +15,10 @@ const Post = sequelize.define('Post', {
     image: {
         type: DataTypes.STRING,
         allowNull: true
+    },
+    likes: {
+    type: DataTypes.ARRAY(DataTypes.UUID),
+    defaultValue: []
     }
 });
 

@@ -6,5 +6,7 @@ const uploadCloud = require('../middlewares/upload');
 
 // Route này cần Đăng nhập (verifyToken) và có thể kèm Ảnh (uploadCloud)
 router.post('/create', verifyToken, uploadCloud.single('image'), postController.createPost);
+router.get('/all', postController.getAllPosts);
+router.put('/:id/like', verifyToken, postController.likePost);
 
 module.exports = router;

@@ -3,8 +3,11 @@ const express = require('express');
 const { connectDB, sequelize } = require('./config/database');
 const authRoutes = require('./routes/auth.routes');
 const postRoutes = require('./routes/post.routes');
+const cors = require('cors');
+
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
