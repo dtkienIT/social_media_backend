@@ -22,18 +22,40 @@ exports.register = async (req, res) => {
   }
 };
 
+
 exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: "Người dùng không tồn tại" });
+    try {
+        const { email, password } = req.body;
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Mật khẩu không đúng" });
+        // 1. Tìm người dùng theo email
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({ message: 'Email không tồn tại!' });
+        }
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.json({ token, user: { id: user.id, fullName: user.fullName } });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+        // 2. Kiểm tra mật khẩu
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Mật khẩu không đúng!' });
+        }
+
+        // 3. Tạo Token (Thẻ bài xác thực)
+        const token = jwt.sign(
+            { id: user.id }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '7d' } // Token có hạn 7 ngày
+        );
+
+        res.json({
+            message: 'Đăng nhập thành công!',
+            token,
+            user: {
+                id: user.id,
+                fullName: user.fullName,
+                avatar: user.avatar
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
