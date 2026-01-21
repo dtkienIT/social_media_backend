@@ -1,10 +1,8 @@
-// src/routes/auth.routes.js
 const express = require('express');
 const router = express.Router();
+const { register, login } = require('../controllers/auth.controller');
 
-// Tạm thời để một route trống để test server
-router.post('/register', (req, res) => {
-    res.json({ message: "Route Register đang hoạt động!" });
-});
+router.post('/register', register);
+router.post('/login', login);
 
 module.exports = router;
