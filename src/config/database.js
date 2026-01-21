@@ -3,11 +3,12 @@ const { Sequelize } = require('sequelize');
 // Khởi tạo Sequelize với đường dẫn từ .env
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
-  logging: false, // Tắt log SQL để terminal sạch sẽ hơn
+  logging: false,
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false // Bắt buộc phải có để kết nối tới Render PostgreSQL
+      
+      rejectUnauthorized: false 
     }
   }
 });
