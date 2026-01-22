@@ -11,6 +11,6 @@ router.put('/update', authMiddleware, upload.single('avatar'), userController.up
 router.get('/posts/:userId', userController.getUserPosts);
 
 // 3. Route lấy profile (Dùng cho giao diện Profile)
-router.get('/:userId', userController.getUserProfile);
+router.get('/profile/:userId', userController.getUserProfile);
 
 module.exports = router;

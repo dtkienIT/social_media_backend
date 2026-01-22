@@ -42,41 +42,34 @@ exports.updateProfile = async (req, res) => {
 // 2. Lấy thông tin cơ bản của User (Để hiện tên và ảnh trên trang Profile)
 exports.getUserProfile = async (req, res) => {
     try {
-        // Sử dụng userId để khớp với params từ Route
-        const id = req.params.userId || req.params.id; 
+        const { userId } = req.params; // Lấy đúng userId từ route
 
-        const user = await User.findByPk(id, {
+        const user = await User.findByPk(userId, {
             attributes: { exclude: ['password'] },
             include: [{
                 model: Post,
                 include: [{ 
                     model: Comment, 
-                    // Bỏ 'as' nếu bạn đã bỏ alias trong index.js như hướng dẫn trước
                     include: [{ model: User, attributes: ['fullName', 'avatar'] }] 
                 }]
-            }],
-            // Order phải nằm ở cấp độ của Model mà bạn muốn sắp xếp
-            order: [[Post, 'createdAt', 'DESC']] 
+            }]
         });
 
         if (!user) return res.status(404).json({ message: "Người dùng không tồn tại" });
 
-        // Phải dùng user.Posts (viết hoa chữ P) vì Sequelize mặc định viết hoa tên Model trong mảng include
-        const posts = user.Posts || [];
-        const totalLikes = posts.reduce((acc, post) => acc + (post.likes?.length || 0), 0);
+        // Chuyển đổi dữ liệu sang dạng plain object để dễ xử lý
+        const userData = user.get({ plain: true });
+        
+        // Tính tổng like
+        const totalLikes = (userData.Posts || []).reduce((acc, post) => 
+            acc + (post.likes?.length || 0), 0
+        );
 
         res.json({ 
-            user: {
-                id: user.id,
-                fullName: user.fullName,
-                avatar: user.avatar,
-                // Trả về posts ở đây để Frontend dễ xử lý
-                posts: posts 
-            }, 
+            user: userData, 
             totalLikes 
         });
     } catch (error) {
-        console.error("Lỗi Controller:", error);
         res.status(500).json({ error: error.message });
     }
 };
