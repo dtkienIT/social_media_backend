@@ -4,17 +4,24 @@ const User = require('../models/User');
 exports.createPost = async (req, res) => {
     try {
         const { content } = req.body;
+        
+        // Khi dùng Cloudinary, req.file.path chính là URL ảnh vĩnh viễn
         const imageUrl = req.file ? req.file.path : null;
 
         const newPost = await Post.create({
             content,
             image: imageUrl,
-            userId: req.user.id // Lấy từ Token đã verify
+            userId: req.user.id 
+        });
+
+        // Trả về post kèm thông tin User để Frontend hiển thị được ngay mà không cần F5
+        const postWithUser = await Post.findByPk(newPost.id, {
+            include: [{ model: User, attributes: ['fullName', 'avatar'] }]
         });
 
         res.status(201).json({
             message: 'Đăng bài thành công!',
-            post: newPost
+            post: postWithUser
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -27,10 +34,10 @@ exports.getAllPosts = async (req, res) => {
             include: [
                 {
                     model: User,
-                    attributes: ['fullName', 'avatar'] // Chỉ lấy tên và ảnh, không lấy mật khẩu
+                    attributes: ['fullName', 'avatar']
                 }
             ],
-            order: [['createdAt', 'DESC']] // Bài mới nhất hiện lên đầu
+            order: [['createdAt', 'DESC']]
         });
 
         res.status(200).json(posts);
@@ -79,34 +86,3 @@ exports.deletePost = async (req, res) => {
     }
 };
 
-exports.getUserPosts = async (req, res) => {
-    try {
-        const posts = await Post.findAll({
-            where: { userId: req.params.userId },
-            include: [{ model: User, attributes: ['fullName', 'avatar'] }],
-            order: [['createdAt', 'DESC']]
-        });
-        res.json(posts);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-exports.updateProfile = async (req, res) => {
-    try {
-        const { fullName } = req.body;
-        const userId = req.user.id; // Lấy từ middleware verifyToken
-        
-        let updateData = { fullName };
-
-        // Nếu người dùng có gửi file ảnh mới
-        if (req.file) {
-            updateData.avatar = req.file.path; // URL ảnh từ Cloudinary hoặc đường dẫn file
-        }
-
-        const updatedUser = await User.update(updateData, { where: { id: userId } });
-        res.json({ message: "Cập nhật thành công!", avatar: updateData.avatar });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
