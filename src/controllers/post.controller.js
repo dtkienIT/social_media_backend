@@ -91,3 +91,21 @@ exports.getUserPosts = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const user = await User.findByPk(req.user.id);
+        const { fullName } = req.body;
+        let avatarUrl = user.avatar;
+
+        if (req.file) {
+            // Nếu bạn có dùng Cloudinary/Multer để upload ảnh
+            avatarUrl = req.file.path; 
+        }
+
+        await user.update({ fullName, avatar: avatarUrl });
+        res.json({ message: "Cập nhật thành công", user });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
