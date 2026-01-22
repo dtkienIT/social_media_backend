@@ -1,23 +1,22 @@
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs'); // Thêm thư viện fs (File System)
 
-const uploadDir = 'uploads/';
+// Cấu hình Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-// Kiểm tra nếu thư mục chưa tồn tại thì tạo mới
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
+// Cấu hình lưu trữ trực tiếp lên Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'facebook_clone_uploads', // Tên thư mục trên Cloudinary
+    allowed_formats: ['jpg', 'png', 'jpeg'],
+    public_id: (req, file) => `avatar-${Date.now()}` // Tên file
   },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
-  }
 });
 
 const upload = multer({ storage: storage });
