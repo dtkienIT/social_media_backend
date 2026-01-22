@@ -4,6 +4,7 @@ const { connectDB, sequelize } = require('./config/database');
 const authRoutes = require('./routes/auth.routes');
 const postRoutes = require('./routes/post.routes');
 const cors = require('cors');
+const userRoutes = require('./routes/user.routes');
 
 const app = express();
 
@@ -11,6 +12,10 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/users', userRoutes);
+
+// Để hiển thị được ảnh trên trình duyệt
+app.use('/uploads', express.static('uploads'));
 
 // Kết nối và đồng bộ Database
 connectDB();
