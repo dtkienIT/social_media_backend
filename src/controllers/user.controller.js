@@ -55,3 +55,19 @@ exports.getUserPosts = async (req, res) => {
     }
 };
 
+exports.getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.userId, {
+      attributes: ['id', 'fullName', 'avatar'] // Chỉ lấy thông tin cần thiết
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    // Trả về object user để khớp với logic Frontend (res.data.user)
+    res.json({ user }); 
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
