@@ -2,7 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs'); // Thêm thư viện fs (File System)
 
-const uploadDir = 'uploads/facebook_clone_uploads/';
+const uploadDir = 'uploads/';
 
 // Kiểm tra nếu thư mục chưa tồn tại thì tạo mới
 if (!fs.existsSync(uploadDir)) {

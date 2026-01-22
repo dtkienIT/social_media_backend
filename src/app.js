@@ -15,8 +15,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/users', userRoutes);
 
-// Để hiển thị được ảnh trên trình duyệt
-app.use('/uploads', express.static('uploads'));
+
 
 // Kết nối và đồng bộ Database
 connectDB();
