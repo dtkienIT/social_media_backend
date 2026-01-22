@@ -6,6 +6,7 @@ const upload = require('../middlewares/upload'); // File này bạn đã có tro
 
 // Định nghĩa link: PUT /api/users/update
 router.put('/update', authMiddleware, upload.single('avatar'), userController.updateProfile);
-router.get('/user/:userId', userController.getUserPosts);
+router.get('/:userId', userController.getUserProfile);
+router.get('/posts/:userId', userController.getUserPosts);
 
 module.exports = router;
