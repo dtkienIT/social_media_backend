@@ -1,39 +1,37 @@
 const User = require('../models/User');
+const Post = require('../models/Post'); // Đảm bảo đã import model Post
 
+// 1. Cập nhật thông tin cá nhân
 exports.updateProfile = async (req, res) => {
   try {
     const { fullName } = req.body;
-    const userId = req.user.id; // Lấy từ auth.middleware
+    const userId = req.user.id;
 
     let updateData = {};
     if (fullName) updateData.fullName = fullName;
     
-    // Khi dùng Cloudinary qua multer-storage-cloudinary:
-    // req.file.path sẽ chứa URL đầy đủ (ví dụ: https://res.cloudinary.com/...)
+    // Lưu URL từ Cloudinary vào Database
     if (req.file) {
       updateData.avatar = req.file.path; 
     }
 
-    // Kiểm tra tính hợp lệ: Nếu không có gì để cập nhật thì báo lỗi nhẹ
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ message: "Không có thông tin nào để cập nhật" });
     }
 
     const user = await User.findByPk(userId);
     if (!user) {
-        return res.status(404).json({ message: "Không tìm thấy người dùng" });
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
     }
 
-    // Cập nhật vào Database
     await user.update(updateData);
 
-    // Trả về dữ liệu mới nhất
     res.json({
       message: "Cập nhật thành công!",
       user: {
         id: user.id,
         fullName: user.fullName,
-        avatar: user.avatar // Bây giờ là link https://...
+        avatar: user.avatar
       }
     });
   } catch (error) {
@@ -42,32 +40,38 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-exports.getUserPosts = async (req, res) => {
-    try {
-        const posts = await Post.findAll({
-            where: { userId: req.params.userId },
-            include: [{ model: User, attributes: ['fullName', 'avatar'] }],
-            order: [['createdAt', 'DESC']]
-        });
-        res.json(posts);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
+// 2. Lấy thông tin cơ bản của User (Để hiện tên và ảnh trên trang Profile)
 exports.getUserProfile = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.userId, {
-      attributes: ['id', 'fullName', 'avatar'] // Chỉ lấy thông tin cần thiết
+      attributes: ['id', 'fullName', 'avatar']
     });
 
     if (!user) {
       return res.status(404).json({ message: "Không tìm thấy người dùng" });
     }
 
-    // Trả về object user để khớp với logic Frontend (res.data.user)
-    res.json({ user }); 
+    // Trả về object user để Frontend dùng: res.data.user
+    res.json({ user });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// 3. Lấy danh sách bài viết của User
+exports.getUserPosts = async (req, res) => {
+  try {
+    const posts = await Post.findAll({
+      where: { userId: req.params.userId },
+      include: [{ 
+        model: User, 
+        attributes: ['fullName', 'avatar'] 
+      }],
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(posts);
+  } catch (error) {
+    console.error("Lỗi getUserPosts:", error);
+    res.status(500).json({ error: error.message });
   }
 };
