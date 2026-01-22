@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path');
 
 // Import cấu hình DB và các Models đã thiết lập quan hệ
-const { sequelize } = require('./config/db'); // Đảm bảo đường dẫn này đúng với file chứa sequelize.define
+const { sequelize } = require('./config/database'); // Đảm bảo đường dẫn này đúng với file chứa sequelize.define
 const { User, Post, Comment } = require('./models/index');
 
 // Import Routes
