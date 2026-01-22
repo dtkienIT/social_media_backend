@@ -9,12 +9,15 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'facebook_clone_uploads', // Tên thư mục trên Cloudinary
-    allowed_formats: ['jpg', 'png', 'jpeg'],
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/facebook_clone_uploads/');
   },
+  filename: (req, file, cb) => {
+    // Tạo tên file duy nhất và GIỮ LẠI ĐUÔI FILE GỐC (.jpg, .png...)
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
 });
 
 const uploadCloud = multer({ storage });
